@@ -1,0 +1,158 @@
+create database tour_manager;
+create table kind_of_tour
+(
+    id   int primary key,
+    name varchar(255) not null
+);
+create table date
+(
+    id         int primary key,
+    start_time date not null,
+    end_time   date not null
+);
+create table city
+(
+    id   int primary key,
+    name varchar(255) not null
+);
+create table destination
+(
+    id          int primary key,
+    name        varchar(255),
+    description text,
+    price       int not null
+);
+alter table destination
+    add column city_id int not null;
+alter table destination
+    add constraint fk_city foreign key (city_id) references city (id);
+create table tour
+(
+    id              int primary key,
+    kind_of_tour_id int not null,
+    constraint fk_kind_of_tour foreign key (kind_of_tour_id) references kind_of_tour (id),
+    date_id         int not null,
+    constraint fk_time foreign key (date_id) references date (id),
+    price           int not null,
+    destination_id  int not null,
+    constraint fk_destination foreign key (destination_id) references destination (id)
+);
+create table customer
+(
+    id            int primary key,
+    name          varchar(255) not null,
+    identify_code varchar(255) not null,
+    birthday      date,
+    tour_id       int          not null,
+    constraint fk_tour foreign key (tour_id) references tour (id)
+);
+create table payment
+(
+    id          int primary key,
+    tour_id     int          not null,
+    constraint fk_tour_of_payment foreign key tour (id) references tour (id),
+    customer_id int          not null,
+    constraint fk_customer foreign key (customer_id) references customer (id),
+    status      varchar(255) not null
+);
+
+/*Init data*/
+insert into city(id, name) value (1001, 'NYC');
+insert into city(id, name) value (1002, 'Los Angeles');
+insert into city(id, name) value (1003, 'Shang Hai');
+insert into city(id, name) value (1004, 'Hanoi');
+insert into city(id, name) value (1005, 'Saigon');
+
+insert into date(id, start_time, end_time) value (101, '2019-12-01', '2020-01,04');
+delete
+from date
+where start_time = '2029-12-01';
+update date
+set start_time='2019-12-01'
+where start_time = '2029-12-01';
+insert into date(id, start_time, end_time) value (102, '2020-07-01', '2020-01,04');
+insert into date(id, start_time, end_time) value (103, '2020-06-01', '2020-03-25');
+insert into date(id, start_time, end_time) value (104, '2020-05-01', '2020-11,11');
+insert into date(id, start_time, end_time) value (105, '2020-04-01', '2020-03,31');
+
+insert into kind_of_tour (id, name) value (0, 'Danger tour');
+insert into kind_of_tour (id, name) value (1, 'Summer tour');
+insert into kind_of_tour (id, name) value (2, 'Spring MVC tour');
+insert into kind_of_tour (id, name) value (3, 'Servlet tour');
+insert into kind_of_tour (id, name) value (4, 'JSP tour');
+
+insert into destination(id, name, description, price, city_id) value (0, 'Around NYC', 'Cheap and good', 10000, 1001);
+insert into destination(id, name, description, price, city_id) value (1, 'Around Los Angeles and NYC',
+                                                                      'Expensive and very good', 50000, 1001);
+insert into destination(id, name, description, price, city_id) value (2, 'Vietnam to Shanghai', 'Cheap and good', 1100, 1003);
+insert into destination(id, name, description, price, city_id) value (3, 'Around Shanghai', 'Sexy tour', 10000, 1003);
+insert into destination(id, name, description, price, city_id) value (4, 'Around NYC and Vietnam', 'Fast tour', 12200, 1001);
+
+alter table tour
+    drop column price;
+insert into tour (id, kind_of_tour_id, date_id, destination_id) value (0, 1, 101, 0);
+insert into tour (id, kind_of_tour_id, date_id, destination_id) value (1, 2, 102, 1);
+insert into tour (id, kind_of_tour_id, date_id, destination_id) value (2, 3, 103, 2);
+insert into tour (id, kind_of_tour_id, date_id, destination_id) value (3, 0, 104, 3);
+insert into tour (id, kind_of_tour_id, date_id, destination_id) value (4, 1, 104, 4);
+
+insert into customer (id, name, identify_code, birthday, tour_id) value (0, 'James Bond', '250399', '1999-03-25', 0);
+insert into customer (id, name, identify_code, birthday, tour_id) value (1, 'Ryu Coder', '771700', '1919-04-12', 1);
+insert into customer (id, name, identify_code, birthday, tour_id) value (2, 'Thu', '200601', '2001-06-20', 0);
+insert into customer (id, name, identify_code, birthday, tour_id) value (3, 'Jack Dracula', '250398', '1827-12-20', 0);
+delete
+from customer
+where id = 3;
+alter table customer
+    modify identify_code varchar(255) not null unique;
+insert into customer (id, name, identify_code, birthday, tour_id) value (4, 'Alice', '123456', '1999-04-25', 2);
+insert into customer (id, name, identify_code, birthday, tour_id) value (5, 'Bob', '098765', '1999-03-25', 0);
+insert into customer (id, name, identify_code, birthday, tour_id) value (6, 'Henry', '184636', '1999-03-25', 1);
+insert into customer (id, name, identify_code, birthday, tour_id) value (7, 'Jackson', '112233', '1999-03-25', 3);
+insert into customer (id, name, identify_code, birthday, tour_id) value (8, 'Romantic Person', '111111', '1999-03-25', 3);
+insert into customer (id, name, identify_code, birthday, tour_id) value (9, 'Ryu Coder', '191919', '1919-03-25', 3);
+
+insert into payment(id, tour_id, customer_id, status) value (0, 0, 0, 'Finished');
+insert into payment(id, tour_id, customer_id, status) value (1, 0, 2, 'Progressing');
+insert into payment(id, tour_id, customer_id, status) value (2, 1, 1, 'Finished');
+insert into payment(id, tour_id, customer_id, status) value (3, 0, 3, 'Finished');
+insert into payment(id, tour_id, customer_id, status) value (4, 3, 9, 'Progressing');
+
+/*Thong ke so luong tour*/
+select count(*)
+from tour;
+
+/*Tinh so tour co ngay bat dau trong thang 3-2020*/
+
+select * from tour as t join date as d on (t.date_id=d.id and d.start_time>'2020-01-01');
+select count(*) as number_of_tour from tour as t join date as d on (t.date_id=d.id and d.start_time>'2020-01-01');
+
+/*Tinh so tour co ngay ket thuc trong thang 4-2020*/
+
+select * from tour as t inner join date as d on(t.date_id=d.id and (d.end_time>='2020-04-01' and d.end_time<='2020-04-30'));
+select count(*) as number_of_tour from tour as t inner join date as d on(t.date_id=d.id and (d.end_time>='2020-04-01' and d.end_time<='2020-04-30'));
+
+/*Tinh so city co trong cac tour da duoc tao*/
+
+select c.name, count(*)
+from ((tour inner join destination d on tour.destination_id = d.id)
+         inner join city c on d.city_id = c.id)
+group by c.name;
+
+
+/*=============================================*/
+
+create index STT on customer(id);
+alter table customer drop index STT;
+create index tour_id_index on customer(tour_id);
+select * from customer order by tour_id;
+alter table customer
+drop index tour_id_index;
+
+
+
+
+
+
+
+
